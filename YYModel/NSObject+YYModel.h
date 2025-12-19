@@ -435,6 +435,22 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (BOOL)modelCustomTransformToDictionary:(NSMutableDictionary *)dic;
 
+/**
+ If returns NO, `yy_modelToJSONObject` will use property names as keys instead of
+ mapped JSON keys.
+ 
+ @return YES to use mapped keys, NO to use property names.
+ */
++ (BOOL)modelToJSONObjectUsesMappedKeys;
+
+/**
+ If returns YES, `yy_modelToJSONObject` will enable cycle detection for this model
+ class (default is NO for performance).
+ 
+ @return YES to enable cycle detection, NO to disable.
+ */
++ (BOOL)modelToJSONObjectUsesCycleDetection;
+
 @end
 
 NS_ASSUME_NONNULL_END
