@@ -11,6 +11,9 @@
 
 #import "YYClassInfo.h"
 #import <objc/runtime.h>
+#if __has_include(<UIKit/UIKit.h>)
+#import <UIKit/UIKit.h>
+#endif
 
 static NSString *YYStringFromUTF8(const char *string) {
     if (!string) return nil;
@@ -347,6 +350,15 @@ YYEncodingType YYEncodingGetType(const char *typeEncoding) {
         classCache.countLimit = 1024;
         metaCache.countLimit = 1024;
         lock = dispatch_semaphore_create(1);
+#if __has_include(<UIKit/UIKit.h>)
+        [[NSNotificationCenter defaultCenter] addObserverForName:UIApplicationDidReceiveMemoryWarningNotification
+                                                          object:nil
+                                                           queue:nil
+                                                      usingBlock:^(__unused NSNotification *note) {
+            [classCache removeAllObjects];
+            [metaCache removeAllObjects];
+        }];
+#endif
     });
     dispatch_semaphore_wait(lock, DISPATCH_TIME_FOREVER);
     NSCache *cache = class_isMetaClass(cls) ? metaCache : classCache;

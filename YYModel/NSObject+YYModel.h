@@ -13,6 +13,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+typedef id _Nullable (^YYModelValueTransformBlock)(id _Nullable value);
+
 /**
  Provide some data-model method:
  
@@ -338,6 +340,26 @@ NS_ASSUME_NONNULL_BEGIN
  @return A class mapper.
  */
 + (nullable NSDictionary<NSString *, id> *)modelContainerPropertyGenericClass;
+
+/**
+ Custom value transformer for json -> model.
+ 
+ @discussion Use property name as key, and value should be a block.
+ The block will be called before YYModel's default conversion.
+ 
+ @return A property value transformer mapper.
+ */
++ (nullable NSDictionary<NSString *, YYModelValueTransformBlock> *)modelCustomTransformFromJSON;
+
+/**
+ Custom value transformer for model -> json.
+ 
+ @discussion Use property name as key, and value should be a block.
+ The block will be called before YYModel's default conversion.
+ 
+ @return A property value transformer mapper.
+ */
++ (nullable NSDictionary<NSString *, YYModelValueTransformBlock> *)modelCustomTransformToJSON;
 
 /**
  If you need to create instances of different classes during json->object transform,

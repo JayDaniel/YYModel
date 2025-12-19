@@ -1,4 +1,4 @@
-platform :ios, '8.0'
+platform :ios, '14.0'
 use_frameworks!
 
 target 'ModelBenchmark' do
@@ -8,7 +8,8 @@ pod 'FastEasyMapping'
 pod 'JSONModel'
 pod 'Mantle'
 pod 'MJExtension'
-pod 'YYModel'
+#od 'YYModel
+pod 'YYModel', :path => '..'
 
 # Swift
 pod 'Argo'
@@ -24,4 +25,22 @@ pod 'SwiftyJSON'
 
 end
 
+post_install do |installer|
+  installer.pods_project.targets.each do |target|
+    target.build_configurations.each do |config|
+      config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '14.0'
+    end
+  end
 
+  mantle_file = File.join(__dir__, 'Pods', 'Mantle', 'Mantle', 'extobjc', 'MTLEXTRuntimeExtensions.m')
+  if File.exist?(mantle_file)
+    content = File.read(mantle_file)
+    patch_marker = "case '?':\n\t\t\t// Ignore unknown flags introduced by newer runtimes.\n\t\t\tbreak;\n\n"
+    unless content.include?(patch_marker)
+      needle = "break;\n\n\t\tdefault:\n"
+      replacement = "break;\n\t\tcase '?':\n\t\t\t// Ignore unknown flags introduced by newer runtimes.\n\t\t\tbreak;\n\n\t\tdefault:\n"
+      updated = content.sub(needle, replacement)
+      File.open(mantle_file, 'w') { |f| f.write(updated) } if updated != content
+    end
+  end
+end

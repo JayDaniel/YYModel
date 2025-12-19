@@ -17,6 +17,7 @@
 		D96199421F36FDA500B70581 /* user.json in Resources */ = {isa = PBXBuildFile; fileRef = D961993A1F36FDA500B70581 /* user.json */; };
 		D96199431F36FDA500B70581 /* weibo.json in Resources */ = {isa = PBXBuildFile; fileRef = D961993B1F36FDA500B70581 /* weibo.json */; };
 		D97B2D4D1F36F44A00AD0C9D /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = D97B2D4C1F36F44A00AD0C9D /* AppDelegate.m */; };
+		D9E1AA1B2C3D4E5F6A7B8C9F /* SceneDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = D9E1AA1B2C3D4E5F6A7B8C9E /* SceneDelegate.m */; };
 		D97B2D501F36F44A00AD0C9D /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D97B2D4F1F36F44A00AD0C9D /* ViewController.m */; };
 		D97B2D531F36F44A00AD0C9D /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D97B2D511F36F44A00AD0C9D /* Main.storyboard */; };
 		D97B2D551F36F44A00AD0C9D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D97B2D541F36F44A00AD0C9D /* Assets.xcassets */; };
@@ -47,6 +48,8 @@
 		D97B2D481F36F44A00AD0C9D /* ModelBenchmark.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ModelBenchmark.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D97B2D4B1F36F44A00AD0C9D /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		D97B2D4C1F36F44A00AD0C9D /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
+		D9E1AA1B2C3D4E5F6A7B8C9D /* SceneDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SceneDelegate.h; sourceTree = "<group>"; };
+		D9E1AA1B2C3D4E5F6A7B8C9E /* SceneDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SceneDelegate.m; sourceTree = "<group>"; };
 		D97B2D4E1F36F44A00AD0C9D /* ViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = "<group>"; };
 		D97B2D4F1F36F44A00AD0C9D /* ViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
 		D97B2D521F36F44A00AD0C9D /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
@@ -96,6 +99,8 @@
 			children = (
 				D97B2D4B1F36F44A00AD0C9D /* AppDelegate.h */,
 				D97B2D4C1F36F44A00AD0C9D /* AppDelegate.m */,
+				D9E1AA1B2C3D4E5F6A7B8C9D /* SceneDelegate.h */,
+				D9E1AA1B2C3D4E5F6A7B8C9E /* SceneDelegate.m */,
 				D97B2D511F36F44A00AD0C9D /* Main.storyboard */,
 				D97B2D541F36F44A00AD0C9D /* Assets.xcassets */,
 				D97B2D561F36F44A00AD0C9D /* LaunchScreen.storyboard */,
@@ -180,7 +185,6 @@
 				D97B2D451F36F44A00AD0C9D /* Frameworks */,
 				D97B2D461F36F44A00AD0C9D /* Resources */,
 				AEDB4A68CDD86A4000CF08EF /* [CP] Embed Pods Frameworks */,
-				73A6CA6E4EC04C98C39C5A74 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -240,34 +244,22 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		73A6CA6E4EC04C98C39C5A74 /* [CP] Copy Pods Resources */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "[CP] Copy Pods Resources";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-ModelBenchmark/Pods-ModelBenchmark-resources.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
 		857B9B6B140B5186E34CEA26 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
 			);
 			name = "[CP] Check Pods Manifest.lock";
 			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-ModelBenchmark-checkManifestLockResult.txt",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n";
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
 		AEDB4A68CDD86A4000CF08EF /* [CP] Embed Pods Frameworks */ = {
@@ -276,13 +268,36 @@
 			files = (
 			);
 			inputPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-ModelBenchmark/Pods-ModelBenchmark-frameworks.sh",
+				"${BUILT_PRODUCTS_DIR}/Argo/Argo.framework",
+				"${BUILT_PRODUCTS_DIR}/FastEasyMapping/FastEasyMapping.framework",
+				"${BUILT_PRODUCTS_DIR}/Gloss/Gloss.framework",
+				"${BUILT_PRODUCTS_DIR}/HandyJSON/HandyJSON.framework",
+				"${BUILT_PRODUCTS_DIR}/JSONModel/JSONModel.framework",
+				"${BUILT_PRODUCTS_DIR}/MJExtension/MJExtension.framework",
+				"${BUILT_PRODUCTS_DIR}/Mantle/Mantle.framework",
+				"${BUILT_PRODUCTS_DIR}/ObjectMapper/ObjectMapper.framework",
+				"${BUILT_PRODUCTS_DIR}/Runes/Runes.framework",
+				"${BUILT_PRODUCTS_DIR}/SwiftyJSON/SwiftyJSON.framework",
+				"${BUILT_PRODUCTS_DIR}/YYModel/YYModel.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Argo.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FastEasyMapping.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Gloss.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/HandyJSON.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/JSONModel.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/MJExtension.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Mantle.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/ObjectMapper.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Runes.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SwiftyJSON.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/YYModel.framework",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-ModelBenchmark/Pods-ModelBenchmark-frameworks.sh\"\n";
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-ModelBenchmark/Pods-ModelBenchmark-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */
@@ -302,6 +317,7 @@
 				D99DE7DB1F3705A400734B10 /* SwiftGithubUser.swift in Sources */,
 				D96199401F36FDA500B70581 /* MJWeiboModel.m in Sources */,
 				D97B2D4D1F36F44A00AD0C9D /* AppDelegate.m in Sources */,
+				D9E1AA1B2C3D4E5F6A7B8C9F /* SceneDelegate.m in Sources */,
 				D961993D1F36FDA500B70581 /* FEWeiboModel.m in Sources */,
 				D96199411F36FDA500B70581 /* MTWeiboModel.m in Sources */,
 			);
@@ -375,7 +391,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
@@ -422,7 +438,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = iphoneos;
 				VALIDATE_PRODUCT = YES;

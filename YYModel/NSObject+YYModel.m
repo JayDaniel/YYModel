@@ -289,8 +289,32 @@ static force_inline id YYValueForMultiKeys(__unsafe_unretained NSDictionary *dic
     return value;
 }
 
+static NSCache *YYModelMergedDictionaryCache(void) {
+    static NSCache *cache;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        cache = [[NSCache alloc] init];
+        cache.countLimit = 512;
+#if __has_include(<UIKit/UIKit.h>)
+        [[NSNotificationCenter defaultCenter] addObserverForName:UIApplicationDidReceiveMemoryWarningNotification
+                                                          object:nil
+                                                           queue:nil
+                                                      usingBlock:^(__unused NSNotification *note) {
+            [cache removeAllObjects];
+        }];
+#endif
+    });
+    return cache;
+}
+
 static NSDictionary *YYModelMergedDictionaryFromClass(Class cls, SEL selector) {
     if (!cls || !selector) return nil;
+    NSString *cacheKey = [NSString stringWithFormat:@"%@:%@", NSStringFromClass(cls), NSStringFromSelector(selector)];
+    NSCache *cache = YYModelMergedDictionaryCache();
+    id cached = [cache objectForKey:cacheKey];
+    if (cached) {
+        return cached == (id)kCFNull ? nil : cached;
+    }
     NSMutableArray *classes = [NSMutableArray new];
     for (Class cur = cls; cur && cur != [NSObject class]; cur = class_getSuperclass(cur)) {
         [classes addObject:cur];
@@ -304,6 +328,7 @@ static NSDictionary *YYModelMergedDictionaryFromClass(Class cls, SEL selector) {
             else [result addEntriesFromDictionary:dic];
         }
     }
+    [cache setObject:result ? (id)result : (id)kCFNull forKey:cacheKey];
     return result;
 }
 
@@ -398,6 +423,8 @@ static id YYModelCreateValueForClass(__unsafe_unretained id value, Class cls) {
     BOOL _isKVCCompatible;       ///< YES if it can access with key-value coding
     BOOL _isStructAvailableForKeyedArchiver; ///< YES if the struct can encoded with keyed archiver/unarchiver
     BOOL _hasCustomClassFromDictionary; ///< class/generic class implements +modelCustomClassForDictionary:
+    YYModelValueTransformBlock _customTransformFromJSON; ///< custom transform for json -> model
+    YYModelValueTransformBlock _customTransformToJSON;   ///< custom transform for model -> json
     
     /*
      property->key:       _mappedToKey:key     _mappedToKeyPath:nil            _mappedToKeyArray:nil
@@ -607,6 +634,7 @@ static id YYModelCreateValueForClass(__unsafe_unretained id value, Class cls) {
         curClassInfo = curClassInfo.superClassInfo;
     }
     if (allPropertyMetas.count) _allPropertyMetas = allPropertyMetas.allValues.copy;
+    NSDictionary *allPropertyMetasByName = allPropertyMetas.copy;
     
     // create mapper
     NSMutableDictionary *mapper = [NSMutableDictionary new];
@@ -679,6 +707,30 @@ static id YYModelCreateValueForClass(__unsafe_unretained id value, Class cls) {
     if (mapper.count) _mapper = mapper;
     if (keyPathPropertyMetas) _keyPathPropertyMetas = keyPathPropertyMetas;
     if (multiKeysPropertyMetas) _multiKeysPropertyMetas = multiKeysPropertyMetas;
+
+    NSDictionary *fromJSONTransformers = YYModelMergedDictionaryFromClass(cls, @selector(modelCustomTransformFromJSON));
+    if (fromJSONTransformers.count) {
+        [fromJSONTransformers enumerateKeysAndObjectsUsingBlock:^(id key, id obj, BOOL *stop) {
+            if (![key isKindOfClass:[NSString class]]) return;
+            _YYModelPropertyMeta *propertyMeta = allPropertyMetasByName[key];
+            if (!propertyMeta) return;
+            if (obj && [obj isKindOfClass:YYNSBlockClass()]) {
+                propertyMeta->_customTransformFromJSON = [obj copy];
+            }
+        }];
+    }
+    
+    NSDictionary *toJSONTransformers = YYModelMergedDictionaryFromClass(cls, @selector(modelCustomTransformToJSON));
+    if (toJSONTransformers.count) {
+        [toJSONTransformers enumerateKeysAndObjectsUsingBlock:^(id key, id obj, BOOL *stop) {
+            if (![key isKindOfClass:[NSString class]]) return;
+            _YYModelPropertyMeta *propertyMeta = allPropertyMetasByName[key];
+            if (!propertyMeta) return;
+            if (obj && [obj isKindOfClass:YYNSBlockClass()]) {
+                propertyMeta->_customTransformToJSON = [obj copy];
+            }
+        }];
+    }
     
     _classInfo = classInfo;
     _keyMappedCount = _allPropertyMetas.count;
@@ -709,6 +761,14 @@ static id YYModelCreateValueForClass(__unsafe_unretained id value, Class cls) {
         cache = [[NSCache alloc] init];
         cache.countLimit = 1024;
         lock = dispatch_semaphore_create(1);
+#if __has_include(<UIKit/UIKit.h>)
+        [[NSNotificationCenter defaultCenter] addObserverForName:UIApplicationDidReceiveMemoryWarningNotification
+                                                          object:nil
+                                                           queue:nil
+                                                      usingBlock:^(__unused NSNotification *note) {
+            [cache removeAllObjects];
+        }];
+#endif
     });
     dispatch_semaphore_wait(lock, DISPATCH_TIME_FOREVER);
     _YYModelMeta *meta = [cache objectForKey:cls];
@@ -860,6 +920,10 @@ static force_inline void ModelSetNumberToProperty(__unsafe_unretained id model,
 static void ModelSetValueForProperty(__unsafe_unretained id model,
                                      __unsafe_unretained id value,
                                      __unsafe_unretained _YYModelPropertyMeta *meta) {
+    if (meta->_customTransformFromJSON) {
+        value = meta->_customTransformFromJSON(value);
+        if (!value) return;
+    }
     if (meta->_isCNumber) {
         NSNumber *num = YYNSNumberCreateFromID(value);
         ModelSetNumberToProperty(model, num, meta);
@@ -1438,6 +1502,11 @@ static id ModelToJSONObjectRecursiveInternal(NSObject *model,
                             default: break;
                         }
                     }
+                    if (propertyMeta->_customTransformToJSON) {
+                        id transformed = propertyMeta->_customTransformToJSON(value);
+                        if (!transformed) return;
+                        value = transformed;
+                    }
                     if (!value) return;
                     
                     if (propertyMeta->_mappedToKeyPath) {
@@ -1500,6 +1569,11 @@ static id ModelToJSONObjectRecursiveInternal(NSObject *model,
                             } break;
                             default: break;
                         }
+                    }
+                    if (propertyMeta->_customTransformToJSON) {
+                        id transformed = propertyMeta->_customTransformToJSON(value);
+                        if (!transformed) continue;
+                        value = transformed;
                     }
                     if (!value) continue;
                     unsafeDic[key] = value;
