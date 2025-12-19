@@ -4,22 +4,26 @@ import PackageDescription
 let package = Package(
     name: "YYModel",
     platforms: [
-        .iOS(.v14)
+        .iOS(.v14),
+        .macOS(.v10_15),
+        .tvOS(.v12),
+        .watchOS(.v6),
     ],
     products: [
         .library(
             name: "YYModel",
             targets: ["YYModel"]
-        )
+        ),
     ],
     targets: [
         .target(
             name: "YYModel",
+            dependencies: [],
             path: "YYModel",
-            publicHeadersPath: ".",
             resources: [
-                .process("PrivacyInfo.xcprivacy")
-            ]
-        )
+                .process("PrivacyInfo.xcprivacy"),
+            ],
+            publicHeadersPath: "."
+        ),
     ]
 )
